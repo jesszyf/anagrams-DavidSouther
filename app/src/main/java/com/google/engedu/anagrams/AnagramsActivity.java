@@ -55,22 +55,29 @@ public class AnagramsActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         AssetManager assetManager = getAssets();
+        // load txt file
         try {
             InputStream inputStream = assetManager.open("words.txt");
+            //reference for the dictionary
             dictionary = new AnagramDictionary(inputStream);
         } catch (IOException e) {
+            // pop up at the bottom
             Toast toast = Toast.makeText(this, "Could not load dictionary", Toast.LENGTH_LONG);
             toast.show();
         }
         // Set up the EditText box to process the content of the box when the user hits 'enter'
+        // load the edit text
         final EditText editText = (EditText) findViewById(R.id.editText);
         editText.setRawInputType(InputType.TYPE_CLASS_TEXT);
+        // ime: way to work with the keyboard
         editText.setImeOptions(EditorInfo.IME_ACTION_GO);
         editText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
+            // action id is when press input button, send, enter, go etc
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 boolean handled = false;
                 if (actionId == EditorInfo.IME_ACTION_GO) {
+                    // when event handler is called, do process word method
                     processWord(editText);
                     handled = true;
                 }
@@ -86,12 +93,15 @@ public class AnagramsActivity extends AppCompatActivity {
             return;
         }
         String color = "#cc0029";
+        // check with dictionary if is good word
         if (dictionary.isGoodWord(word, currentWord) && anagrams.contains(word)) {
+            // remove from list of possible anagrams
             anagrams.remove(word);
             color = "#00aa29";
         } else {
             word = "X " + word;
         }
+        // put HTML in
         resultView.append(Html.fromHtml(String.format("<font color=%s>%s</font><BR>", color, word)));
         editText.setText("");
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -127,9 +137,12 @@ public class AnagramsActivity extends AppCompatActivity {
         TextView resultView = (TextView) findViewById(R.id.resultView);
         if (currentWord == null) {
             currentWord = dictionary.pickGoodStarterWord();
+            // find all the anagrams for that word
             anagrams = dictionary.getAnagramsWithOneMoreLetter(currentWord);
+            // string.format, %s=put string here,
             gameStatus.setText(Html.fromHtml(String.format(START_MESSAGE, currentWord.toUpperCase(), currentWord)));
             fab.setImageResource(android.R.drawable.ic_menu_help);
+            // reset UI to default
             fab.hide();
             resultView.setText("");
             editText.setText("");
@@ -138,6 +151,7 @@ public class AnagramsActivity extends AppCompatActivity {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
         } else {
+            // reset using the current word
             editText.setText(currentWord);
             editText.setEnabled(false);
             fab.setImageResource(android.R.drawable.ic_media_play);
